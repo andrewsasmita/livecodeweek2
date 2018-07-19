@@ -27,7 +27,8 @@
         <br>
         <ul>
             <li v-for="image in images">
-                <img src=image.url>
+                <img :src=image.url>
+                {{image.user.name}}
             </li>
         </ul>
     </div>
