@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+    <title>LiveCodeWeek2-Andrew</title>
+</head>
+<body>
+    <div id="app">
+        <input type="email" v-model="email" placeholder="enter your email">
+        <br>
+        <input type="text" v-model="name" placeholder="enter your name">
+        <br>
+        <button v-on:click="getToken()">Register and Login</button>
+        <br>
+        <input type="file" id="file" ref="file" v-on:change="handleUpload()">
+        <br>
+        <button v-on:click="uploadImage()">Upload</button>
+        <br>
+        <br>
+        <button v-on:click="showImage()">Show Image</button>
+        <br>
+        <ul>
+            <li v-for="image in images">
+                <img src=image.url>
+            </li>
+        </ul>
+    </div>
+    <script>
+        var app = new Vue ({
+            el: "#app",
+            data: {
+               email: '',
+               name: '',
+               file: '',
+               images: ''
+            },
+            methods: {
+                getToken: function () {
+
+                    let dataForToken = {
+                        email: this.email,
+                        name: this.name
+                    }
+
+                    axios.post('http://35.240.157.177/request-token', dataForToken, {
+
+                    }).then(user => {
+                        localStorage.setItem('token', user.data.uuid)
+                        //console.log(user.data)
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                },
+                showImage: function () {
+                    axios.get('http://35.240.157.177/image', {
+                      headers: {
+                          Authorization : localStorage.getItem('token')
+                          }
+                    }).then(images => {
+                        this.images = images.data
+                        console.log(images)
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                },
+                handleUpload: function () {
+                    this.file = event.target.files[0]
+                    //console.log(event.target.files[0])
+                },
+                uploadImage: function () {
+                    //console.log(this.file)
+                    let formData = new FormData()
+                    formData.append('file', this.file)
+
+                    axios.post('http://35.240.157.177/image', formData, {
+                        headers : {
+                            Authorization : localStorage.getItem('token')
+                        }                    
+                    }).then (image => {
+                        console.log('yeeaaay')
+                    }).catch (err => {
+                        console.log(err)
+                    })
+                }
+            }
+        })
+    
+    </script>
+</body>
+</html>
